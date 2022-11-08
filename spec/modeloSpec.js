@@ -2,7 +2,7 @@ describe("El juego...", function() {
   var miJuego;
   var us1,us2,partida;
 
-  beforeEach(function() {
+  beforeEach(function() {   //Se ejecuta antes de cada bloque it
     miJuego=new Juego();
     miJuego.agregarUsuario("pepe");
     miJuego.agregarUsuario("luis");
@@ -53,15 +53,73 @@ describe("El juego...", function() {
     expect(us1.flota).toBeDefined();
     expect(us2.flota).toBeDefined();
     
-    expect(us1.flota.length).toEqual(2);
-    expect(us2.flota.length).toEqual(2);
+    //expect(us1.flota.length).toEqual(2);  //da fallo porq es un array asociativo
+    expect(Object.keys(us1.flota).length).toEqual(2); //seria asi
+    expect(Object.keys(us2.flota).length).toEqual(2);
     
-    expect(us1.flota[0].tam).toEqual(2);
-    expect(us1.flota[1].tam).toEqual(4);
+    //expect(us1.flota[0].tam).toEqual(2); //aqui igual
+    expect(us1.flota["b2"].tam).toEqual(2);
+    expect(us1.flota["b4"].tam).toEqual(4);
   });
 
-  it("la partida está en fase jugando",function(){
-    expect(partida.esJugando()).toBeTrue();
+  it("la partida está en fase desplegando",function(){
+    expect(partida.esJugando()).toBeFalse();
+    expect(partida.esDesplegando()).toBeTrue(); //Este metodo no lo tenemos
   })
+
+  describe("A jugar!",function(){
+    beforeEach(function(){ //Como esta anidado, el beforeEach de arriba tambien se hace
+      us1.colocarBarco("b2",0,0); // 0,0 1,0
+	    us1.colocarBarco("b4",0,1); // 0,1 1,1 2,1 3,1
+	    us1.barcosDesplegados();
+	    us2.colocarBarco("b2",0,0);
+	    us2.colocarBarco("b4",0,1);
+	    us2.barcosDesplegados();    
+    });
+
+    it("Comprobar que las flotas estan desplegadas",function(){ //metodos todosDesplegados...
+      expect(us1.todosDesplegados()).toBeTrue();
+      expect(us2.todosDesplegados()).toBeTrue();
+
+    });
+
+    it("Comprobar jugada que Pepe gana",function(){
+      expect(us2.flota["b2"].obtenerEstado()).toEqual("intacto");
+      expect(us2.flota["b4"].obtenerEstado()).toEqual("intacto");
+      us1.disparar(0,0);
+      expect(us2.flota["b2"].obtenerEstado()).toEqual("tocado");
+	    us1.disparar(1,0);
+      expect(us2.flota["b2"].obtenerEstado()).toEqual("hundido");
+      expect(us2.flota["b4"].obtenerEstado()).toEqual("intacto");
+	    us1.disparar(0,1);
+      expect(us2.flota["b4"].obtenerEstado()).toEqual("tocado");
+	    us1.disparar(1,1);
+	    us1.disparar(2,1);
+	    us1.disparar(3,1);
+      expect(us2.flota["b4"].obtenerEstado()).toEqual("hundido");
+      expect(us2.flotaHundida()).toBeTrue();
+      expect(us1.flotaHundida()).toBeFalse();
+
+
+
+    });
+
+    it("Comprobar el cambio de turno",function(){
+      expect(partida.turno).toEqual(us1);
+      us1.disparar(2,2);
+      expect(partida.turno).toEqual(us2);
+
+
+    });
+
+    it("Comprobar que no deja disparar si no es tu turno",function(){
+      expect(partida.turno).toEqual(us1);
+      expect(us1.flota["b2"].obtenerEstado()).toEqual("intacto");
+      us2.disparar(0,0);
+      expect(us1.flota["b2"].obtenerEstado()).toEqual("intacto");
+
+    });
+
+  });
 
 });

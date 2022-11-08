@@ -148,7 +148,7 @@ function Usuario(nick,juego){
 	}
 	this.flotaHundida=function(){
 		for(var key in this.flota){
-			if (!this.flota[key].estado=="hundido"){
+			if (this.flota[key].estado!="hundido"){
 				return false;
 			}
 		}
@@ -196,6 +196,9 @@ function Partida(codigo,usr){
 	}
 	this.esJugando=function(){
 		return this.fase=="jugando";
+	}
+	this.esDesplegando= function(){
+		return this.fase=="desplegando";
 	}
 	this.flotasDesplegadas=function(){
 		for(i=0;i<this.jugadores.length;i++){
@@ -252,7 +255,7 @@ function Partida(codigo,usr){
 		if (jugador.flotaHundida()){
 			this.fase="final";
 			console.log("Fin de la partida");
-			console.log("Gandor: "+this.turno.nick);
+			console.log("Ganador: "+this.turno.nick);
 		}
 	}
 	this.agregarJugador(this.owner);
@@ -343,5 +346,12 @@ function Agua(){
 		return "agua";
 	}
 }
+
+//Conveniente crear las clases de las fases y mover algunos metodos a ellas
+
+function Inicial(){  //En esta por ejemplo el agregar jugador
+	this.nombre="inicial"
+}
+//y las demas
 
 //module.exports.Juego = Juego;
